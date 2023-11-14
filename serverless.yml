@@ -1,0 +1,43 @@
+service: mpart-form-sample
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  region: ap-southeast-2
+  environment:
+    S3_BUCKET: ${self:service}-${self:provider.stage}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource: "*"
+  apiGateway:
+    # accepted binary type for file uploads
+    binaryMediaTypes:
+      - "multipart/form-data"
+
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+
+functions:
+  execute:
+    handler: main.handler
+    runtime: python3.11
+    events:
+      - http:
+          path: execute
+          method: post
+
+resources:
+  Resources:
+    MyBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET}
+
+plugins:
+  - serverless-python-requirements

@@ -1,0 +1,5 @@
+.mypy**
+.serverless
+deploy.sh
+venv
+node_modules
